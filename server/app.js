@@ -78,7 +78,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       });
   
       const options = {
-        hostname: 'localhost',
+        hostname: '192.168.1.14',
         port: 11434,
         path: '/api/generate',
         method: 'POST',
