@@ -64,6 +64,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
     }
     else if (objPost.type === 'conversa') {
       callMistralApi(objPost.prompt, (chunk) => {
+        console.log("test");
         if (chunk) {
           let resp = JSON.parse(chunk)
           res.write(resp.response);
