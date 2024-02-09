@@ -5,7 +5,7 @@ const url = require('url')
 const http = require('http');
 const { log } = require('console');
 const app = express()
-const port = process.env.PORT || 8888
+const port = process.env.PORT || 80
 let stop = false;
 
 // Configuring files received through POST Method
