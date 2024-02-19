@@ -41,6 +41,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
   
     try {
       objPost = JSON.parse(textPost.data);
+      console.log("prova");
     } catch (error) {
       res.status(400).send('Bad request.\n')
       console.log(error)
