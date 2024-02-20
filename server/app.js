@@ -49,6 +49,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
     }
 
     if (objPost.type === 'imatge') {
+      console.log(objPost);
       let prompt = objPost.prompt == "" ? "What is in this picture?" : objPost.prompt
       callLlavaApi(prompt, objPost.image, (chunk) => {
         if (chunk) {
