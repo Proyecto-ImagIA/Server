@@ -41,7 +41,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
   
     try {
       objPost = JSON.parse(textPost.data);
-      console.log("prova");
+      console.log(objPost);
     } catch (error) {
       res.status(400).send('Bad request.\n')
       console.log(error)
@@ -64,9 +64,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       });
     }
     else if (objPost.type === 'conversa') {
-      console.log("teest");
       callMistralApi(objPost.prompt, (chunk) => {
-        console.log("test");
         if (chunk) {
           let resp = JSON.parse(chunk)
           res.write(resp.response);
@@ -120,6 +118,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
     }
     function callMistralApi(prompt, onDataCallback) {
       const data = JSON.stringify({
+        type: 'conversa',
         model: 'mistral',
         prompt: prompt
       });
@@ -148,6 +147,8 @@ app.post('/data', upload.single('file'), async (req, res) => {
       });
   
       req.write(data);
+
+      console.log(data);
       req.end();
     }
   })
