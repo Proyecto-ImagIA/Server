@@ -53,6 +53,8 @@ app.post('/data', upload.single('file'), async (req, res) => {
         console.error('Error calling Llava API:', error);
         return;
       }
+
+      console.log("hola");
     
       if (chunk) {
         let resp = JSON.parse(chunk)
@@ -94,7 +96,6 @@ app.post('/data', upload.single('file'), async (req, res) => {
       
         res.on('end', () => {
           let body = Buffer.concat(chunks).toString();
-          console.log(body);
           onDataCallback(body);
         });
       });
