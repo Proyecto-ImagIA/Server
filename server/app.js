@@ -48,7 +48,6 @@ app.post('/data', upload.single('file'), async (req, res) => {
     }
 
     let prompt = objPost.prompt == "" ? "What is in this picture?" : objPost.prompt
-    console.log(objPost.images);
     callLlavaApi(prompt, objPost.images, (chunk) => {
       if (chunk) {
         let resp = JSON.parse(chunk)
@@ -83,6 +82,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
   
       const req = http.request(options, res => {
         res.on('data', chunk => {
+          console.log(chunk.toString());
           // Call the callback with each fragment of data received
           onDataCallback(chunk);
         });
