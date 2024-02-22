@@ -57,6 +57,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
           res.end();
         } else {
           res.write(resp.response);
+          console.log(resp.response);
         }
       }
     });
