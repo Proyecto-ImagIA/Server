@@ -36,7 +36,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
     console.log(req.body);
     const textPost = req.body;
-    console.log(textPost.data);
+    console.log(textPost);
     const uploadedFile = req.file;
     let objPost = {}
   
