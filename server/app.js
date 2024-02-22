@@ -34,13 +34,13 @@ function shutDown() {
 
 app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
+    console.log(req.body);
     const textPost = req.body;
-    console.log(textPost);
     const uploadedFile = req.file;
     let objPost = {}
   
     try {
-      objPost = JSON.parse(textPost);
+      objPost = JSON.parse(textPost.data);
     } catch (error) {
       res.status(400).send('Bad request.\n')
       console.log(error)
