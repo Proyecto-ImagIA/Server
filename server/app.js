@@ -81,14 +81,19 @@ app.post('/data', upload.single('file'), async (req, res) => {
       };
   
       const req = http.request(options, res => {
-        console.log(res);
+        let chunks = [];
+      
         res.on('data', chunk => {
-          console.log(chunk.toString());
-          // Call the callback with each fragment of data received
-          onDataCallback(chunk);
+          chunks.push(chunk);
+        });
+      
+        res.on('end', () => {
+          let body = Buffer.concat(chunks).toString();
+          console.log(body);
+          onDataCallback(body);
         });
       });
-  
+      
       req.on('error', error => {
         console.error('Error calling MarIA API:', error);
         // Managing errors
