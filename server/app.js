@@ -5,7 +5,7 @@ const url = require('url')
 const http = require('http');
 const { log } = require('console');
 const app = express()
-const port = process.env.PORT || 80
+const port = process.env.PORT || 3000
 let stop = false;
 
 // Configuring files received through POST Method
@@ -48,15 +48,30 @@ app.post('/data', upload.single('file'), async (req, res) => {
     }
 
     let prompt = objPost.prompt == "" ? "What is in this picture?" : objPost.prompt
-    callLlavaApi(prompt, objPost.images, (error, chunk) => {
+
+    registerPetition(prompt, objPost.imatge, (chunk) => {
+      if (chunk) {
+        console.log(chunk);
+        let resp = JSON.parse(chunk);
+
+        if (resp.status || stop) {
+          stop = false;
+          res.end();
+        }else{
+          res.write(resp.response);
+        }
+      }
+    });
+
+
+    callLlavaApi(prompt, objPost.imatge, (error, chunk) => {
       if (error) {
         console.error('Error calling Llava API:', error);
         return;
       }
-
-      console.log("hola");
     
       if (chunk) {
+        console.log(chunk);
         let resp = JSON.parse(chunk)
         console.log(resp);
     
@@ -68,12 +83,52 @@ app.post('/data', upload.single('file'), async (req, res) => {
         }
       }
     });
+
+    function registerPetition(prompt, image, onDataCallback) {
+      const data = JSON.stringify({
+        prompt: prompt,
+        model: 'llava',
+        imatge: image,
+        usuari: 1
+      });
+  
+      const options = {
+        hostname: '127.0.0.1',
+        port: 8080,
+        path: '/api/peticions/crear_peticio',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': data.length
+        }
+      };
+
+      const req = http.request(options, res => {
+        let chunks = [];
+      
+        res.on('data', chunk => {
+          chunks.push(chunk);
+        });
+      
+        res.on('end', () => {
+          let body = Buffer.concat(chunks).toString();
+          onDataCallback(body);
+        });
+      });
+
+      req.on('error', error => {
+        console.error('Error creating petition', error);
+      });
+  
+      req.write(data);
+      req.end();
+    }
   
     function callLlavaApi(prompt, image, onDataCallback) {
       const data = JSON.stringify({
         model: 'llava',
         prompt: prompt,
-        images: [image]
+        imatge: image
       });
   
       const options = {
