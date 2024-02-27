@@ -66,6 +66,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
     callLlavaApi(prompt, objPost.imatge, (error, chunk) => {
       if (error) {
+        res.status(200).send(error);
         console.error('Error calling Llava API:', error);
         return;
       }
