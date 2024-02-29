@@ -38,6 +38,7 @@ app.post('/api/user/validate',upload.single('file'), async(req, res) => {
   try{
 
     const userData = req.body;
+    console.log(userData);
 
     // Realiza el POST al otro servidor
     if (!userData.number.length < 6 || userData.phone.length < 9) {
@@ -54,6 +55,7 @@ app.post('/api/user/validate',upload.single('file'), async(req, res) => {
     // Verifica si la respuesta del servidor externo es "OK"
     if (response.data === "OK") {
       res.status(200).send("OK")
+      console.log('User validated');
       /*
       *
       se pide el JWT al servidor y se envia
