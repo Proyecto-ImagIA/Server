@@ -8,6 +8,8 @@ const app = express()
 const port = process.env.PORT || 80
 let stop = false;
 
+const BDAPI = "127.0.0.1:8080";
+
 // Configuring files received through POST Method
 const storage = multer.memoryStorage(); // Save files on memory
 const upload = multer({ storage: storage });
