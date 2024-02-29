@@ -32,6 +32,44 @@ function shutDown() {
   process.exit(0);
 }
 
+app.post('/api/user/validate',upload.single('file'), async(req, res) => {
+  try{
+
+    const userData = req.body;
+
+    // Realiza el POST al otro servidor
+    if (!userData.number.length < 6 || userData.phone.length < 9) {
+      throw new Error('Los datos enviados no son válidos');
+    }
+
+    const dataToSend = {
+      phone: userData.phone,
+      number: userData.number,
+    };
+
+    const response = await axios.post(BDAPI+'/api/user/validate', dataToSend);
+
+    // Verifica si la respuesta del servidor externo es "OK"
+    if (response.data === "OK") {
+      res.status(200).send("OK")
+      /*
+      *
+      se pide el JWT al servidor y se envia
+      *
+      */
+    
+      //res.json({ message: 'Datos recibidos correctamente', data: userData });
+    } else {
+      // Si la respuesta no es "OK", maneja el error adecuadamente
+      throw new Error('El servidor externo no respondió con "OK"');
+    }
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("ERROR")
+  }
+});
+
 app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
     console.log(req.body);
