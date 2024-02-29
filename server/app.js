@@ -65,7 +65,7 @@ app.post('/api/user/register',upload.single('file'), async (req, res) => {
     });
   }
 
-    const response = await axios.post(BDAPI+'/api/usuaris/registrar', dataToSend);
+    const response = await axios.post(BDAPI+'/api/usuaris/registrar_usuari', dataToSend);
 
     // Verifica si la respuesta del servidor externo es "OK"
     if (response.data === "OK") {
