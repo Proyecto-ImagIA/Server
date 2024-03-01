@@ -6,7 +6,7 @@ const { exec } = require('child_process');
 const http = require('http');
 const { log } = require('console');
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 80
 let stop = false;
 
 const BDAPI = "127.0.0.1:8080";
