@@ -9,8 +9,6 @@ const app = express()
 const port = process.env.PORT || 80
 let stop = false;
 
-const BDAPI = "127.0.0.1:8080";
-
 // Configuring files received through POST Method
 const storage = multer.memoryStorage(); // Save files on memory
 const upload = multer({ storage: storage });
@@ -35,6 +33,59 @@ function shutDown() {
   process.exit(0);
 }
 
+app.post('/api/user/validate', (req, res) => {
+  try {
+    const userData = req.body;
+    
+    validateUser(userData.phone, userData.code, (resp) => {
+      if (resp) {
+        resp = JSON.parse(resp);
+        if (resp.status === 'OK') {
+          res.status(200).send(resp);
+        }else{
+          console.error('Error validating user:', resp);
+          res.status(400).send(resp);
+        }
+      }
+    });
+
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("ERROR")
+  }
+
+  function validateUser(phone, smscode, onDataCallback) {
+    const data = JSON.stringify({
+      telefon: phone,
+      codi: smscode
+    });
+
+    const options = {
+      hostname: '127.0.0.1',
+      port: 8080,
+      path: '/api/users/validar',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length
+      }
+    }
+    const req = http.request(options, res => {
+      let chunks = [];
+    
+      res.on('data', chunk => {
+        chunks.push(chunk);
+      });
+    
+      res.on('end', () => {
+        let body = Buffer.concat(chunks).toString();
+        onDataCallback(body);
+      });
+    });
+  }
+});
+
 app.post('/api/user/register', (req, res) => {
   try {
     const userData = req.body;
@@ -43,7 +94,7 @@ app.post('/api/user/register', (req, res) => {
       if (resp) {
         resp = JSON.parse(resp);
         if (resp.status === 'OK') {
-          res.status(200).send("OK");
+          res.status(200).send(resp);
         }else{
           console.error('Error calling DBAPI:', resp);
           res.status(400).send(resp);
@@ -98,41 +149,6 @@ app.post('/api/user/register', (req, res) => {
   }
 });
 
-app.post('/api/user/validate',upload.single('file'), async(req, res) => {
-  try{
-
-    const userData = req.body;
-    console.log(userData);
-
-    // Realiza el POST al otro servidor
-    if (!userData.number.length < 6 || userData.phone.length < 9) {
-      throw new Error('Los datos enviados no son válidos');
-    }
-
-
-    // Verifica si la respuesta del servidor externo es "OK"
-    if (response.data === "OK") {
-      res.status(200).send("OK")
-      console.log('User validated');
-      /*
-      *
-      se pide el JWT al servidor y se envia
-      *
-      */
-    
-      //res.json({ message: 'Datos recibidos correctamente', data: userData });
-    } else {
-      // Si la respuesta no es "OK", maneja el error adecuadamente
-      throw new Error('El servidor externo no respondió con "OK"');
-    }
-    
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("ERROR")
-  }
-});
-
-
 app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
     console.log(req.body);
@@ -150,7 +166,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
     let prompt = objPost.prompt == "" ? "What is in this picture?" : objPost.prompt
 
-    registerPetition(prompt, objPost.imatge, (chunk) => {
+    registerPetition(prompt, objPost.imatge, objPost.apiKey, (chunk) => {
       if (chunk) {
         console.log(chunk);
         let resp = JSON.parse(chunk);
@@ -186,12 +202,11 @@ app.post('/data', upload.single('file'), async (req, res) => {
       }
     });
 
-    function registerPetition(prompt, image, onDataCallback) {
+    function registerPetition(prompt, image, apiKey, onDataCallback) {
       const data = JSON.stringify({
         prompt: prompt,
         model: 'llava',
-        imatge: image,
-        usuari: 1
+        imatge: image
       });
   
       const options = {
@@ -201,6 +216,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': "Bearer "+apiKey,
           'Content-Length': data.length
         }
       };
