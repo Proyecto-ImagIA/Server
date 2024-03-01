@@ -1,13 +1,12 @@
 const express = require('express')
 const multer = require('multer');
 const url = require('url')
-const axios = require('axios');
 const { exec } = require('child_process');
 
 const http = require('http');
 const { log } = require('console');
 const app = express()
-const port = process.env.PORT || 80
+const port = process.env.PORT || 3000
 let stop = false;
 
 const BDAPI = "127.0.0.1:8080";
@@ -36,64 +35,66 @@ function shutDown() {
   process.exit(0);
 }
 
-app.post('/api/user/register',upload.single('file'), async (req, res) => {
+app.post('/api/user/register', (req, res) => {
   try {
     const userData = req.body;
 
-    // Realiza el POST al otro servidor
-    if (!userData.nickname || !userData.email || !userData.telefon ) {//|| userData.phone.length < 9
-      throw new Error('Los datos enviados no son válidos');
-    }
-
-    const dataToSend = {
-      telefon: userData.phone,
-      nickname: userData.name,
-      email: userData.email
-    };
-
-    function comando(comando){
-    exec(comando, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error al ejecutar el comando: ${error.message}`);
-        return;
+    registerUser(userData.email, userData.contrasenya, userData.telefon, userData.nickname, (resp) => {
+      if (resp) {
+        resp = JSON.parse(resp);
+        if (resp.status === 'OK') {
+          res.status(200).send(resp);
+        }else{
+          console.error('Error calling DBAPI:', resp);
+          res.status(400).send(resp);
+        }
       }
-      if (stderr) {
-        console.error(`Error de salida estándar: ${stderr}`);
-        return;
-      }
-      console.log(`Salida estándar: ${stdout}`);
     });
-  }
-
-    const response = await axios.post(BDAPI+'/api/usuaris/registrar_usuari', dataToSend);
-
-    // Verifica si la respuesta del servidor externo es "OK"
-    if (response.data === "OK") {
-      // Si el servidor externo respondió con "OK", envía una respuesta al cliente
-      res.status(200).send("OK")
-      var numeroAleatorio = generarNumeroAleatorio();
-      comando(
-        port+
-        '/api/sendsms/?api_token='+
-        'l8APNX2q2ePedIpLgPMcBoxFBdFKbKNbV6yizMoISyBHEvoUftHy6Zoj4K7NkzV7'+
-        '&username=ams23&text=prova_1&receiver='+
-        numeroAleatorio);
-      
-      const responseCode = await axios.post(BDAPI+'/api/usuaris/codigoSecreto', dataToSend);
-
-      
-      /*
-      se introduce el numero secreto en la base de datos
-      */
-      res.json({ message: 'Datos recibidos correctamente', data: userData });
-    } else {
-      // Si la respuesta no es "OK", maneja el error adecuadamente
-      throw new Error('El servidor externo no respondió con "OK"');
-    }
 
   } catch (error) {
     console.error(error);
     res.status(500).send("ERROR")
+  }
+
+  function registerUser(email, password, phone, nickname, onDataCallback) {
+
+    const data = JSON.stringify({
+      email: email,
+      contrasenya: password,
+      telefon: phone,
+      nickname: nickname
+    });
+
+    const options = {
+      hostname: '127.0.0.1',
+      port: 8080,
+      path: '/api/usuaris/registrar_usuari',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': data.length
+      }
+    }
+    const req = http.request(options, res => {
+      let chunks = [];
+    
+      res.on('data', chunk => {
+        chunks.push(chunk);
+      });
+    
+      res.on('end', () => {
+        let body = Buffer.concat(chunks).toString();
+        onDataCallback(body);
+      });
+    });
+
+
+    req.on('error', error => {
+      console.error('Error registering user', error);
+    });
+
+    req.write(data);
+    req.end();
   }
 });
 
@@ -108,12 +109,6 @@ app.post('/api/user/validate',upload.single('file'), async(req, res) => {
       throw new Error('Los datos enviados no son válidos');
     }
 
-    const dataToSend = {
-      phone: userData.phone,
-      number: userData.number,
-    };
-
-    const response = await axios.post(BDAPI+'/api/user/validate', dataToSend);
 
     // Verifica si la respuesta del servidor externo es "OK"
     if (response.data === "OK") {
@@ -136,6 +131,7 @@ app.post('/api/user/validate',upload.single('file'), async(req, res) => {
     res.status(500).send("ERROR")
   }
 });
+
 
 app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
