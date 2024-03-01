@@ -66,7 +66,7 @@ app.post('/api/user/validate', (req, res) => {
     const options = {
       hostname: '127.0.0.1',
       port: 8080,
-      path: '/api/users/validar',
+      path: '/api/usuaris/validar',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
