@@ -60,7 +60,7 @@ app.post('/api/user/validate', (req, res) => {
   function validateUser(phone, smscode, onDataCallback) {
     const data = JSON.stringify({
       telefon: phone,
-      codi: smscode
+      codi_validacio: smscode
     });
 
     const options = {
