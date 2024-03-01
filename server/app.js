@@ -41,6 +41,7 @@ app.post('/api/user/validate', (req, res) => {
     validateUser(userData.phone, userData.code, (resp) => {
       if (resp) {
         resp = JSON.parse(resp);
+        console.log(resp);
         if (resp.status === 'OK') {
           res.status(200).send(resp);
         }else{
