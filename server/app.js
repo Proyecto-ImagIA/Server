@@ -36,6 +36,7 @@ function shutDown() {
 app.post('/api/user/validate', (req, res) => {
   try {
     const userData = req.body;
+    console.log(userData);
     
     validateUser(userData.phone, userData.code, (resp) => {
       if (resp) {
