@@ -43,7 +43,7 @@ app.post('/api/user/register', (req, res) => {
       if (resp) {
         resp = JSON.parse(resp);
         if (resp.status === 'OK') {
-          res.status(200).send(resp);
+          res.status(200).send("OK");
         }else{
           console.error('Error calling DBAPI:', resp);
           res.status(400).send(resp);
