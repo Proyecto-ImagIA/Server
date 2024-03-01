@@ -85,6 +85,12 @@ app.post('/api/user/validate', (req, res) => {
         onDataCallback(body);
       });
     });
+    req.on('error', error => {
+      console.error('Error validating user', error);
+    });
+
+    req.write(data);
+    req.end();
   }
 });
 
