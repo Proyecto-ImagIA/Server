@@ -231,6 +231,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
       const req = http.request(options, res => {
         options['Authorization'] = req.getHeader('Authorization');
+        console.log('Authorization:', options['Authorization']);
         let chunks = [];
       
         res.on('data', chunk => {
