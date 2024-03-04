@@ -218,6 +218,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       });
 
       const token = req.getHeader('Authorization');
+      console.log(token);
   
       const options = {
         hostname: '127.0.0.1',
