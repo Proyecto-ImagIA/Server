@@ -161,6 +161,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
     console.log(req.body);
     const textPost = req.body;
+    console.log(req.headers.authorization);
     const uploadedFile = req.file;
     let objPost = {}
   
@@ -174,7 +175,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
     let prompt = objPost.prompt == "" ? "What is in this picture?" : objPost.prompt
 
-    registerPetition(prompt, objPost.imatge, req.headers.Authorization, (chunk) => {
+    registerPetition(prompt, objPost.imatge, req.headers.authorization, (chunk) => {
       if (chunk) {
         console.log(chunk);
         let resp = JSON.parse(chunk);
