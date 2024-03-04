@@ -174,7 +174,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
     let prompt = objPost.prompt == "" ? "What is in this picture?" : objPost.prompt
 
-    registerPetition(prompt, objPost.imatge, objPost.apiKey, (chunk) => {
+    registerPetition(prompt, objPost.imatge, (chunk) => {
       if (chunk) {
         console.log(chunk);
         let resp = JSON.parse(chunk);
@@ -210,7 +210,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       }
     });
 
-    function registerPetition(prompt, image, apiKey, onDataCallback) {
+    function registerPetition(prompt, image, onDataCallback) {
       const data = JSON.stringify({
         prompt: prompt,
         model: 'llava',
