@@ -174,7 +174,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
     let prompt = objPost.prompt == "" ? "What is in this picture?" : objPost.prompt
 
-    registerPetition(prompt, objPost.imatge, (chunk) => {
+    registerPetition(prompt, objPost.imatge, req.headers.Authorization, (chunk) => {
       if (chunk) {
         console.log(chunk);
         let resp = JSON.parse(chunk);
@@ -210,7 +210,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       }
     });
 
-    function registerPetition(prompt, image, onDataCallback) {
+    function registerPetition(prompt, image, token, onDataCallback) {
       const data = JSON.stringify({
         prompt: prompt,
         model: 'llava',
@@ -224,14 +224,12 @@ app.post('/data', upload.single('file'), async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': '',
+          'Authorization': token,
           'Content-Length': data.length
         }
       };
 
       const req = http.request(options, res => {
-        options['Authorization'] = req.getHeader('Authorization');
-        console.log('Authorization:', options['Authorization']);
         let chunks = [];
       
         res.on('data', chunk => {
