@@ -216,7 +216,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
         model: 'llava',
         imatge: image
       });
-      
+
       const options = {
         hostname: '127.0.0.1',
         port: 8080,
@@ -224,12 +224,13 @@ app.post('/data', upload.single('file'), async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': req.getHeader('Authorization'),
+          'Authorization': '',
           'Content-Length': data.length
         }
       };
 
       const req = http.request(options, res => {
+        options['Authorization'] = req.getHeader('Authorization');
         let chunks = [];
       
         res.on('data', chunk => {
