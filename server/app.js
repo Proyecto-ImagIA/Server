@@ -2,6 +2,10 @@ const express = require('express')
 const multer = require('multer');
 const url = require('url')
 const { exec } = require('child_process');
+const winston = require('winston');
+const { format } = require('winston');
+const fs = require('fs');
+const path = require('path');
 
 const http = require('http');
 const { log } = require('console');
@@ -12,6 +16,55 @@ let stop = false;
 // Configuring files received through POST Method
 const storage = multer.memoryStorage(); // Save files on memory
 const upload = multer({ storage: storage });
+
+const getCurrentDateTime = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+};
+
+// Define la carpeta donde se guardarán los archivos de registro
+const logDirectory = path.join(__dirname, 'logs', getCurrentDateTime());
+console.log(logDirectory);
+
+// Crea la carpeta si no existe
+if (!fs.existsSync(logDirectory)) {
+  fs.mkdirSync(logDirectory, { recursive: true });
+}
+
+// Configura el nombre del archivo de registro basado en la fecha y hora actual
+const logFileName = `log.log`;
+const logFilePath = path.join(logDirectory, logFileName);
+
+// Configura el logger de Winston
+const logger = winston.createLogger({
+  level: 'info',
+  format: format.combine(
+    format.timestamp(),
+    format.json()
+  ),
+  transports: [
+    // Log a la consola
+    new winston.transports.Console({
+      format: format.combine(
+        format.colorize(),
+        format.simple()
+      ),
+    }),
+    // Log a un archivo
+    new winston.transports.File({ filename: logFilePath }),
+  ],
+});
+
+// Maneja las excepciones no capturadas
+logger.exceptions.handle(
+  new winston.transports.File({ filename: path.join(logDirectory, 'uncaughtExceptions.log') })
+);
 
 app.use(express.static('public'))
 
@@ -160,9 +213,6 @@ app.post('/api/user/register', (req, res) => {
 app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
     console.log(req.body);
-    const textPost = req.body;
-    console.log(req.headers.authorization);
-    const uploadedFile = req.file;
     let objPost = {}
   
     try {
@@ -217,6 +267,8 @@ app.post('/data', upload.single('file'), async (req, res) => {
         model: 'llava',
         imatge: image
       });
+
+      console.log(token);
 
       const options = {
         hostname: '127.0.0.1',
