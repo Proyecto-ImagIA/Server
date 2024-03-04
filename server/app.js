@@ -6,7 +6,7 @@ const { exec } = require('child_process');
 const http = require('http');
 const { log } = require('console');
 const app = express()
-const port = process.env.PORT || 80
+const port = process.env.PORT || 3000
 let stop = false;
 
 // Configuring files received through POST Method
@@ -216,6 +216,8 @@ app.post('/data', upload.single('file'), async (req, res) => {
         model: 'llava',
         imatge: image
       });
+
+      const token = req.getHeader('Authorization');
   
       const options = {
         hostname: '127.0.0.1',
@@ -224,7 +226,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': "Bearer "+apiKey,
+          'Authorization': token,
           'Content-Length': data.length
         }
       };
