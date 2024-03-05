@@ -246,7 +246,6 @@ app.post('/data', upload.single('file'), async (req, res) => {
             console.log('Calling MarIA API...');
             callLlavaApi(prompt, objPost.imatge)
             .then(response => {
-              const message = response.body ? JSON.parse(response.body).message : null;
               res.status(200).json({ message: message }); 
               return;
             })
@@ -333,6 +332,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
           let chunks = [];
         
           res.on('data', chunk => {
+            console.log("ESto es el chunk", chunk);
             chunks.push(chunk);
           });
         
