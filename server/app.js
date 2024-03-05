@@ -252,6 +252,9 @@ app.post('/data', upload.single('file'), async (req, res) => {
             .catch(error => {
                 console.error(error);
                 res.status(500).send('Internal Server Error');
+            })
+            .finally(() => {
+              res.end(); // Envía la respuesta solo después de la petición callLlavaApi
             });
           }
         }else{
