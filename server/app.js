@@ -245,8 +245,8 @@ app.post('/data', upload.single('file'), async (req, res) => {
           if (resp.status === 'OK') {
             console.log('Petition registered');
             console.log('Calling MarIA API...');
-            callLlavaApi(prompt, objPost.imatge, (chunk) => {
-              let resp = JSON.parse(chunk);
+            callLlavaApi(prompt, objPost.imatge, (chunk2) => {
+              let resp = JSON.parse(chunk2);
               console.log(resp);
               if (resp.done || stop) {
                 stop = false;
