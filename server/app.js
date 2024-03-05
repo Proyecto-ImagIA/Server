@@ -245,25 +245,13 @@ app.post('/data', upload.single('file'), async (req, res) => {
           if (resp.status === 'OK') {
             console.log('Petition registered');
             console.log('Calling MarIA API...');
-            callLlavaApi(prompt, objPost.imatge, (chunk2) => {
-              try {
-                console.log("Entered callback");
-                console.log('Received chunk:', chunk2);
-                let resp = JSON.parse(chunk2);
-                console.log("paso resp");
-                if (resp.done || stop) {
-                  stop = false;
-                  res.end();
-                  console.log('MarIA API called');
-                  res.status(200).send(resp);
-                  console.log("Response sent");
-                } else {
-                  console.log('MarIA API response:', resp.response);
-                  res.write(resp.response);
-                }
-              } catch (error) {
-                console.log(error);
-              }
+            callLlavaApi(prompt, objPost.imatge)
+            .then(response => {
+              res.status(200).json(response);
+            })
+            .catch(error => {
+                console.error(error);
+                res.status(500).send('Internal Server Error');
             });
           }
         }else{
@@ -317,44 +305,48 @@ app.post('/data', upload.single('file'), async (req, res) => {
       req.end();
     }
   
-    function callLlavaApi(prompt, image, onDataCallback) {
-      const data = JSON.stringify({
-        model: 'llava',
-        prompt: prompt,
-        imatge: image
-      });
-  
-      const options = {
-        hostname: '192.168.1.14',
-        port: 11434,
-        path: '/api/generate',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Content-Length': data.length
-        }
-      };
-  
-      const req = http.request(options, res => {
-        let chunks = [];
-      
-        res.on('data', chunk => {
-          chunks.push(chunk);
+    function callLlavaApi(prompt, image) {
+      return new Promise ((resolve, reject) => {
+        const data = JSON.stringify({
+          model: 'llava',
+          prompt: prompt,
+          imatge: image
         });
-      
-        res.on('end', () => {
-          let body = Buffer.concat(chunks).toString();
-          onDataCallback(body);
+    
+        const options = {
+          hostname: '192.168.1.14',
+          port: 11434,
+          path: '/api/generate',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Content-Length': data.length
+          }
+        };
+    
+        const req = http.request(options, res => {
+          let chunks = [];
+        
+          res.on('data', chunk => {
+            chunks.push(chunk);
+          });
+        
+          res.on('end', () => {
+            let body = Buffer.concat(chunks).toString();
+            const response = { status: 200, body: body };
+            resolve(response);
+          });
         });
-      });
+        
+        req.on('error', error => {
+          console.error('Error calling MarIA API:', error);
+          logger.error('Error calling MarIA API:', error);
+          // Managing errors
+        });
+    
+        req.write(data);
+        req.end();
+      })
       
-      req.on('error', error => {
-        console.error('Error calling MarIA API:', error);
-        logger.error('Error calling MarIA API:', error);
-        // Managing errors
-      });
-  
-      req.write(data);
-      req.end();
     }
 });
