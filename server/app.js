@@ -248,7 +248,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
             callLlavaApi(prompt, objPost.imatge, (chunk2) => {
               try {
                 console.log("Entered callback");
-                console.log('Received chunk:', chunk);
+                console.log('Received chunk:', chunk2);
                 let resp = JSON.parse(chunk2);
                 console.log(resp);
                 if (resp.done || stop) {
