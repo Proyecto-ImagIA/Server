@@ -241,7 +241,6 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
         if (resp.status || stop) {
           stop = false;
-          res.end();
           if (resp.status === 'OK') {
             console.log('Petition registered');
             console.log('Calling MarIA API...');
