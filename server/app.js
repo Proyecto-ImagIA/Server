@@ -248,6 +248,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
             callLlavaApi(prompt, objPost.imatge)
             .then(response => {
               res.status(200).json(response);
+              return;
             })
             .catch(error => {
                 console.error(error);
@@ -346,7 +347,6 @@ app.post('/data', upload.single('file'), async (req, res) => {
     
         req.write(data);
         req.end();
-      })
-      
+      });
     }
 });
