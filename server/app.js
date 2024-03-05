@@ -242,34 +242,31 @@ app.post('/data', upload.single('file'), async (req, res) => {
         if (resp.status || stop) {
           stop = false;
           res.end();
+          if (resp.status === 'OK') {
+            console.log('Petition registered');
+            console.log('Calling MarIA API...');
+            callLlavaApi(prompt, objPost.imatge, (chunk) => {
+              if (chunk) {
+                console.log(chunk);
+                let resp = JSON.parse(chunk)
+                console.log(resp);
+            
+                if (resp.done || stop) {
+                  stop = false;
+                  res.end();
+                  res.status(200).send(resp);
+                } else {
+                  res.write(resp.response);
+                }
+              }
+            });
+          }
         }else{
           res.write(resp.response);
         }
       }
     });
 
-
-    callLlavaApi(prompt, objPost.imatge, (error, chunk) => {
-      if (error) {
-        res.status(200).send(error);
-        console.error('Error calling Llava API:', error);
-        logger.error('Error calling Llava API:', error);
-        return;
-      }
-    
-      if (chunk) {
-        console.log(chunk);
-        let resp = JSON.parse(chunk)
-        console.log(resp);
-    
-        if (resp.done || stop) {
-          stop = false;
-          res.end();
-        } else {
-          res.write(resp.response);
-        }
-      }
-    });
 
     function registerPetition(prompt, image, token, onDataCallback) {
       const data = JSON.stringify({
