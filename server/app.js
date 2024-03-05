@@ -245,11 +245,24 @@ app.post('/data', upload.single('file'), async (req, res) => {
           if (resp.status === 'OK') {
             console.log('Petition registered');
             console.log('Calling MarIA API...');
-            callLlavaApi(prompt, objPost.imatge)
-              .then(body => {
-                let resp = JSON.parse(body);
-                console.log(resp);
-              })
+            callLlavaApi(prompt, objPost.imatge, (chunk2) => {
+              try {
+                console.log("Entered callback");
+                console.log('Received chunk:', chunk2);
+                let resp = JSON.parse(chunk2);
+                if (resp.done || stop) {
+                  stop = false;
+                  res.end();
+                  console.log('MarIA API called');
+                  res.status(200).send(resp);
+                  console.log("Response sent");
+                } else {
+                  res.write(resp.response);
+                }
+              } catch (error) {
+                console.log(error);
+              }
+            });
           }
         }else{
           res.write(resp.response);
@@ -302,7 +315,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       req.end();
     }
   
-    function callLlavaApi(prompt, image) {
+    function callLlavaApi(prompt, image, onDataCallback) {
       const data = JSON.stringify({
         model: 'llava',
         prompt: prompt,
@@ -329,7 +342,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       
         res.on('end', () => {
           let body = Buffer.concat(chunks).toString();
-          return body;
+          onDataCallback(body);
         });
       });
       
