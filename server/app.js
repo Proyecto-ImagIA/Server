@@ -90,22 +90,24 @@ app.post('/api/user/validate', (req, res) => {
   try {
     const userData = req.body;
     console.log(userData);
-    
+    logger.info('Received user data:', userData);
+
     validateUser(userData.phone, userData.code, (resp) => {
       if (resp) {
         resp = JSON.parse(resp);
         console.log(resp);
+        logger.info('Validation response:', resp);
         if (resp.status === 'OK') {
           res.status(200).send(resp);
         }else{
           console.error('Error validating user:', resp);
+          logger.error('Error validating user:', resp);
           res.status(400).send(resp);
         }
       }
     });
-
-
   } catch (error) {
+    logger.error('An error occurred while validating user:', error);
     console.error(error);
     res.status(500).send("ERROR")
   }
@@ -126,6 +128,7 @@ app.post('/api/user/validate', (req, res) => {
         'Content-Length': data.length
       }
     }
+
     const req = http.request(options, res => {
       let chunks = [];
     
@@ -140,6 +143,7 @@ app.post('/api/user/validate', (req, res) => {
     });
     req.on('error', error => {
       console.error('Error validating user', error);
+      logger.error('Error validating user', error);
     });
 
     req.write(data);
@@ -158,6 +162,7 @@ app.post('/api/user/register', (req, res) => {
           res.status(200).send(resp);
         }else{
           console.error('Error calling DBAPI:', resp);
+          logger.error('Error calling DBAPI:', resp);
           res.status(400).send(resp);
         }
       }
@@ -165,6 +170,7 @@ app.post('/api/user/register', (req, res) => {
 
   } catch (error) {
     console.error(error);
+    logger.error('An error occurred while registering user:', error);
     res.status(500).send("ERROR")
   }
 
@@ -203,6 +209,7 @@ app.post('/api/user/register', (req, res) => {
 
     req.on('error', error => {
       console.error('Error registering user', error);
+      logger.error('Error registering user', error);
     });
 
     req.write(data);
@@ -213,6 +220,7 @@ app.post('/api/user/register', (req, res) => {
 app.post('/data', upload.single('file'), async (req, res) => {
     // Process form data and attached file
     console.log(req.body);
+    logger.info('Received form data:', req.body);
     let objPost = {}
   
     try {
@@ -220,6 +228,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
     } catch (error) {
       res.status(400).send('Bad request.\n')
       console.log(error)
+      logger.error('Bad request:', error);
       return
     }
 
@@ -244,6 +253,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       if (error) {
         res.status(200).send(error);
         console.error('Error calling Llava API:', error);
+        logger.error('Error calling Llava API:', error);
         return;
       }
     
@@ -269,6 +279,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       });
 
       console.log(token);
+      logger.info('Registering petition:', data);
 
       const options = {
         hostname: '127.0.0.1',
@@ -297,6 +308,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
 
       req.on('error', error => {
         console.error('Error creating petition', error);
+        logger.error('Error creating petition', error);
       });
   
       req.write(data);
@@ -336,10 +348,11 @@ app.post('/data', upload.single('file'), async (req, res) => {
       
       req.on('error', error => {
         console.error('Error calling MarIA API:', error);
+        logger.error('Error calling MarIA API:', error);
         // Managing errors
       });
   
       req.write(data);
       req.end();
     }
-  })
+});
