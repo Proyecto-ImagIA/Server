@@ -332,12 +332,12 @@ app.post('/data', upload.single('file'), async (req, res) => {
           let chunks = [];
         
           res.on('data', chunk => {
-            console.log("ESto es el chunk", chunk);
             chunks.push(chunk);
           });
         
           res.on('end', () => {
             let body = Buffer.concat(chunks).toString();
+            console.log('Esto es el body', body);
             const response = { status: 200, body: body };
             resolve(response);
           });
