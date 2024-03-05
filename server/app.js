@@ -247,7 +247,6 @@ app.post('/data', upload.single('file'), async (req, res) => {
             console.log('Calling MarIA API...');
             callLlavaApi(prompt, objPost.imatge, (chunk) => {
               if (chunk) {
-                console.log(chunk);
                 let resp = JSON.parse(chunk)
                 console.log(resp);
             
