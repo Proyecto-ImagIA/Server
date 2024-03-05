@@ -250,7 +250,6 @@ app.post('/data', upload.single('file'), async (req, res) => {
                 console.log("Entered callback");
                 console.log('Received chunk:', chunk2);
                 let resp = JSON.parse(chunk2);
-                console.log(resp);
                 if (resp.done || stop) {
                   stop = false;
                   res.end();
