@@ -342,6 +342,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
       
         res.on('end', () => {
           let body = Buffer.concat(chunks).toString();
+          console.log(body, 'esto es el body');
           onDataCallback(body);
         });
       });
