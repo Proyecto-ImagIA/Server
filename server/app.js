@@ -253,6 +253,7 @@ app.post('/data', upload.single('file'), async (req, res) => {
                 res.end();
                 console.log('MarIA API called');
                 res.status(200).send(resp);
+                console.log("Response sent");
               } else {
                 res.write(resp.response);
               }
